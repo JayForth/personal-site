@@ -10,7 +10,7 @@ function parsePosts() {
   return fs.readdirSync(postsDir)
     .filter(f => f.endsWith('.md'))
     .map(file => {
-      const raw = fs.readFileSync(path.join(postsDir, file), 'utf-8');
+      const raw = fs.readFileSync(path.join(postsDir, file), 'utf-8').replace(/\r\n/g, '\n');
       const match = raw.match(/^---\n([\s\S]*?)\n---\n([\s\S]*)$/);
       if (!match) return null;
 
