@@ -61,16 +61,16 @@ function renderHome() {
   return `
     ${renderHeader('home')}
     <main>
-      <div class="intro">
-        <p>I'm Jacob — I build things on the internet and write about what I learn along the way.</p>
+      <div class="intro h-card">
+        <p>I'm <a class="p-name u-url" href="/" data-link>Jacob</a> — <span class="p-note">I build things on the internet and write about what I learn along the way.</span></p>
       </div>
-      <section class="section">
+      <section class="section h-feed">
         <h2>Writing</h2>
         <ul class="post-list">
           ${writing.map(p => `
-            <li>
-              <span class="post-date">${formatDate(p.date)}</span>
-              <span class="post-title"><a href="/post/${p.slug}" data-link>${p.title}</a></span>
+            <li class="h-entry">
+              <time class="post-date dt-published" datetime="${p.date}">${formatDate(p.date)}</time>
+              <span class="post-title"><a class="p-name u-url" href="/post/${p.slug}" data-link>${p.title}</a></span>
             </li>
           `).join('')}
         </ul>
@@ -80,9 +80,9 @@ function renderHome() {
         <h2>Thoughts</h2>
         <div class="thoughts-list">
           ${thoughts.map(t => `
-            <div class="thought">
-              <div class="thought-body">${marked.parse(t.body.trim())}</div>
-              <span class="thought-date">${formatDate(t.date)}</span>
+            <div class="thought h-entry">
+              <div class="thought-body e-content">${marked.parse(t.body.trim())}</div>
+              <time class="thought-date dt-published" datetime="${t.date}">${formatDate(t.date)}</time>
             </div>
           `).join('')}
         </div>
@@ -92,7 +92,7 @@ function renderHome() {
         <h2>Elsewhere</h2>
         <div class="social-grid">
           ${socials.map(s => `
-            <a href="${s.url}" target="_blank" rel="noopener">
+            <a href="${s.url}" target="_blank" rel="me noopener">
               <span class="platform">${s.platform}</span>
               <span class="handle">${s.handle}</span>
             </a>
@@ -114,14 +114,15 @@ function renderPost(slug) {
   return `
     ${renderHeader('blog')}
     <main>
-      <article>
+      <article class="h-entry">
         <div class="post-header">
-          <h1>${post.title}</h1>
-          <div class="post-meta">${formatDate(post.date)}</div>
+          <h1 class="p-name">${post.title}</h1>
+          <time class="post-meta dt-published" datetime="${post.date}">${formatDate(post.date)}</time>
         </div>
-        <div class="post-body">
+        <div class="post-body e-content">
           ${marked.parse(post.body.trim())}
         </div>
+        <a class="u-url" href="/post/${post.slug}" style="display:none">permalink</a>
       </article>
       <div class="post-actions">
         <a href="/" data-link class="back-link">All posts</a>
@@ -192,7 +193,7 @@ function renderConnect() {
         </div>
         <div class="social-grid">
           ${socials.map(s => `
-            <a href="${s.url}" target="_blank" rel="noopener">
+            <a href="${s.url}" target="_blank" rel="me noopener">
               <span class="platform">${s.platform}</span>
               <span class="handle">${s.handle}</span>
             </a>
