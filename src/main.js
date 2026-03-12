@@ -99,6 +99,10 @@ function renderHome() {
   `;
 }
 
+function isAuthed() {
+  return !!sessionStorage.getItem('write-pass');
+}
+
 function renderPost(slug) {
   const post = posts.find(p => p.slug === slug);
   if (!post) return render404();
@@ -114,7 +118,15 @@ function renderPost(slug) {
           ${marked.parse(post.body.trim())}
         </div>
       </article>
-      <a href="#/" class="back-link">All posts</a>
+      <div class="post-actions">
+        <a href="#/" class="back-link">All posts</a>
+        ${isAuthed() ? `
+          <span class="post-admin">
+            <a href="#/edit/${post.slug}" class="admin-link">Edit</a>
+            <a href="#" class="admin-link admin-link-delete" data-slug="${post.slug}" data-filename="${post.filename}" data-title="${post.title}">Delete</a>
+          </span>
+        ` : ''}
+      </div>
     </main>
     ${renderFooter()}
   `;
@@ -193,8 +205,9 @@ function renderConnect() {
 }
 
 // ── Write page ──
-function renderWrite() {
+function renderWrite(editSlug) {
   const authed = sessionStorage.getItem('write-pass');
+  const editPost = editSlug ? posts.find(p => p.slug === editSlug) : null;
 
   if (!authed) {
     return `
@@ -207,18 +220,23 @@ function renderWrite() {
     `;
   }
 
+  const isThought = editPost?.type === 'thought';
+  const postType = isThought ? 'thought' : 'post';
+
   return `
     <main class="write-page">
       <div class="write-toggle">
-        <button class="write-type-btn active" data-type="post">Post</button>
-        <button class="write-type-btn" data-type="thought">Thought</button>
+        <button class="write-type-btn ${postType === 'post' ? 'active' : ''}" data-type="post">Post</button>
+        <button class="write-type-btn ${postType === 'thought' ? 'active' : ''}" data-type="thought">Thought</button>
       </div>
 
-      <div id="write-title-wrap" class="write-title-wrap">
-        <input type="text" id="write-title" class="write-title" placeholder="Title">
+      <div id="write-title-wrap" class="write-title-wrap" ${isThought ? 'style="display:none"' : ''}>
+        <input type="text" id="write-title" class="write-title" placeholder="Title" value="${editPost && !isThought ? editPost.title.replace(/"/g, '&quot;') : ''}">
       </div>
 
-      <textarea id="write-body" class="write-body" placeholder="Write something..." autofocus></textarea>
+      <textarea id="write-body" class="write-body" placeholder="Write something..." autofocus>${editPost ? editPost.body : ''}</textarea>
+
+      ${editPost ? `<input type="hidden" id="write-edit-filename" value="${editPost.filename}">` : ''}
 
       <div class="write-footer">
         <div class="write-footer-left">
@@ -228,7 +246,7 @@ function renderWrite() {
           </label>
           <span id="write-status" class="write-status"></span>
         </div>
-        <button id="write-publish" class="write-btn write-publish-btn">Publish</button>
+        <button id="write-publish" class="write-btn write-publish-btn">${editPost ? 'Save' : 'Publish'}</button>
       </div>
     </main>
   `;
@@ -336,7 +354,10 @@ function initWrite() {
     });
   }
 
-  // Publish
+  // Publish / Save
+  const editFilename = document.getElementById('write-edit-filename')?.value;
+  const isEditing = !!editFilename;
+
   if (publishBtn) {
     publishBtn.addEventListener('click', async () => {
       const bodyVal = body.value.trim();
@@ -352,18 +373,22 @@ function initWrite() {
       }
 
       publishBtn.disabled = true;
-      status.textContent = 'Publishing...';
+      status.textContent = isEditing ? 'Saving...' : 'Publishing...';
 
       try {
-        const res = await fetch('/api/publish', {
+        const endpoint = isEditing ? '/api/edit' : '/api/publish';
+        const payload = {
+          password: sessionStorage.getItem('write-pass'),
+          title: currentType === 'thought' ? '' : titleVal,
+          body: bodyVal,
+          type: currentType,
+        };
+        if (isEditing) payload.filename = editFilename;
+
+        const res = await fetch(endpoint, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            password: sessionStorage.getItem('write-pass'),
-            title: titleVal,
-            body: bodyVal,
-            type: currentType,
-          }),
+          body: JSON.stringify(payload),
         });
 
         const data = await res.json();
@@ -380,14 +405,18 @@ function initWrite() {
           return;
         }
 
-        status.textContent = 'Published! Site rebuilding...';
-        body.value = '';
-        if (title) title.value = '';
-
-        setTimeout(() => {
-          status.textContent = 'Published! Write another?';
-          publishBtn.disabled = false;
-        }, 3000);
+        if (isEditing) {
+          status.textContent = 'Saved! Site rebuilding...';
+          setTimeout(() => { window.location.hash = '#/'; }, 2000);
+        } else {
+          status.textContent = 'Published! Site rebuilding...';
+          body.value = '';
+          if (title) title.value = '';
+          setTimeout(() => {
+            status.textContent = 'Published! Write another?';
+            publishBtn.disabled = false;
+          }, 3000);
+        }
       } catch (err) {
         status.textContent = 'Network error. Try again.';
         publishBtn.disabled = false;
@@ -418,6 +447,7 @@ function render() {
   else if (route === '/now') html = renderNow();
   else if (route === '/connect') html = renderConnect();
   else if (route === '/write') html = renderWrite();
+  else if (route.startsWith('/edit/')) html = renderWrite(route.replace('/edit/', ''));
   else if (route.startsWith('/post/')) html = renderPost(route.replace('/post/', ''));
   else html = render404();
 
@@ -425,7 +455,43 @@ function render() {
   window.scrollTo(0, 0);
 
   // Wire up write page after render
-  if (route === '/write') initWrite();
+  if (route === '/write' || route.startsWith('/edit/')) initWrite();
+
+  // Wire up delete buttons
+  document.querySelectorAll('.admin-link-delete').forEach(link => {
+    link.addEventListener('click', async (e) => {
+      e.preventDefault();
+      const { slug, filename, title } = link.dataset;
+      if (!confirm(`Delete "${title}"? This cannot be undone.`)) return;
+
+      link.textContent = 'Deleting...';
+
+      try {
+        const res = await fetch('/api/delete', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            password: sessionStorage.getItem('write-pass'),
+            filename,
+            title,
+          }),
+        });
+
+        if (!res.ok) {
+          const data = await res.json();
+          alert(data.error || 'Delete failed.');
+          link.textContent = 'Delete';
+          return;
+        }
+
+        link.textContent = 'Deleted!';
+        setTimeout(() => { window.location.hash = '#/'; }, 1000);
+      } catch (err) {
+        alert('Network error.');
+        link.textContent = 'Delete';
+      }
+    });
+  });
 }
 
 window.addEventListener('hashchange', render);

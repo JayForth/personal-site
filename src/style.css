@@ -336,10 +336,15 @@ a:hover {
   margin-bottom: 1.2rem;
 }
 
-/* ── Back link ── */
-.back-link {
-  display: inline-block;
+/* ── Post actions ── */
+.post-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
   margin-top: 3rem;
+}
+
+.back-link {
   font-family: var(--font-sans);
   font-size: 0.85rem;
   color: var(--color-text-muted);
@@ -352,6 +357,27 @@ a:hover {
 
 .back-link::before {
   content: '← ';
+}
+
+.post-admin {
+  display: flex;
+  gap: 1rem;
+}
+
+.admin-link {
+  font-family: var(--font-sans);
+  font-size: 0.82rem;
+  color: var(--color-text-muted);
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.admin-link:hover {
+  color: var(--color-text);
+}
+
+.admin-link-delete:hover {
+  color: #b44;
 }
 
 /* ── Footer ── */

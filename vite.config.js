@@ -25,6 +25,7 @@ function parsePosts() {
       const slug = file.replace(/^\d{4}-\d{2}-\d{2}_/, '').replace(/\.md$/, '');
       return {
         slug,
+        filename: `posts/${file}`,
         title: frontmatter.title || slug,
         date: frontmatter.date || '2026-01-01',
         type: frontmatter.type || 'post',
