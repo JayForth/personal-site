@@ -326,6 +326,141 @@ a:hover {
   color: var(--color-text-muted);
 }
 
+/* ── Write page ── */
+.write-page {
+  min-height: 70vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.write-gate {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  margin-top: 20vh;
+}
+
+.write-password-input {
+  font-family: var(--font-sans);
+  font-size: 1rem;
+  padding: 0.6rem 1rem;
+  border: 1px solid var(--color-border);
+  border-radius: 4px;
+  background: var(--color-bg);
+  color: var(--color-text);
+  outline: none;
+  width: 200px;
+}
+
+.write-password-input:focus {
+  border-color: var(--color-text-muted);
+}
+
+.write-toggle {
+  display: flex;
+  gap: 0.25rem;
+  margin-bottom: 2rem;
+}
+
+.write-type-btn {
+  font-family: var(--font-sans);
+  font-size: 0.82rem;
+  padding: 0.35rem 0.9rem;
+  border: 1px solid var(--color-border);
+  border-radius: 3px;
+  background: none;
+  color: var(--color-text-muted);
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.write-type-btn.active {
+  background: var(--color-text);
+  color: var(--color-bg);
+  border-color: var(--color-text);
+}
+
+.write-title-wrap {
+  margin-bottom: 0.5rem;
+}
+
+.write-title {
+  font-family: var(--font-serif);
+  font-size: 1.65rem;
+  font-weight: 600;
+  width: 100%;
+  border: none;
+  outline: none;
+  background: none;
+  color: var(--color-text);
+  line-height: 1.35;
+  padding: 0;
+}
+
+.write-title::placeholder {
+  color: var(--color-border);
+}
+
+.write-body {
+  font-family: var(--font-serif);
+  font-size: 1rem;
+  line-height: 1.8;
+  width: 100%;
+  border: none;
+  outline: none;
+  background: none;
+  color: var(--color-text);
+  resize: none;
+  min-height: 40vh;
+  padding: 0;
+  flex: 1;
+}
+
+.write-body::placeholder {
+  color: var(--color-border);
+}
+
+.write-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 2rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--color-border);
+}
+
+.write-status {
+  font-family: var(--font-sans);
+  font-size: 0.82rem;
+  color: var(--color-text-muted);
+}
+
+.write-btn {
+  font-family: var(--font-sans);
+  font-size: 0.85rem;
+  padding: 0.5rem 1.2rem;
+  border: 1px solid var(--color-text);
+  border-radius: 4px;
+  background: var(--color-text);
+  color: var(--color-bg);
+  cursor: pointer;
+  transition: opacity 0.15s;
+}
+
+.write-btn:hover {
+  opacity: 0.85;
+}
+
+.write-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.write-publish-btn {
+  padding: 0.6rem 2rem;
+}
+
 /* ── Responsive ── */
 @media (max-width: 600px) {
   html {
