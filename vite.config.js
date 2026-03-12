@@ -65,7 +65,7 @@ function feedPlugin() {
     name: 'generate-atom-feed',
     writeBundle() {
       const posts = parsePosts();
-      const siteUrl = 'https://jacobforth.com';
+      const siteUrl = 'https://helloiamjacob.com';
       const sorted = [...posts].sort((a, b) => new Date(b.date) - new Date(a.date));
       const updated = sorted[0]?.date || new Date().toISOString().slice(0, 10);
 
@@ -73,8 +73,8 @@ function feedPlugin() {
 
       const entries = sorted.map(p => `  <entry>
     <title>${esc(p.title)}</title>
-    <link href="${siteUrl}/#/post/${p.slug}" rel="alternate"/>
-    <id>${siteUrl}/#/post/${p.slug}</id>
+    <link href="${siteUrl}/post/${p.slug}" rel="alternate"/>
+    <id>${siteUrl}/post/${p.slug}</id>
     <updated>${p.date}T00:00:00Z</updated>
     <content type="text">${esc(p.body)}</content>
   </entry>`).join('\n');
