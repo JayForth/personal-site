@@ -105,7 +105,7 @@ function renderHome() {
 }
 
 function isAuthed() {
-  return !!sessionStorage.getItem('write-pass');
+  return !!localStorage.getItem('write-pass');
 }
 
 function renderPost(slug) {
@@ -212,7 +212,7 @@ function renderConnect() {
 
 // ── Write page ──
 function renderWrite(editSlug) {
-  const authed = sessionStorage.getItem('write-pass');
+  const authed = localStorage.getItem('write-pass');
   const editPost = editSlug ? posts.find(p => p.slug === editSlug) : null;
 
   if (!authed) {
@@ -260,7 +260,7 @@ function renderWrite(editSlug) {
 
 // ── Wire up write page interactions ──
 function initWrite() {
-  const authed = sessionStorage.getItem('write-pass');
+  const authed = localStorage.getItem('write-pass');
 
   if (!authed) {
     const input = document.getElementById('write-password');
@@ -269,7 +269,7 @@ function initWrite() {
 
     const login = () => {
       if (input.value.trim()) {
-        sessionStorage.setItem('write-pass', input.value.trim());
+        localStorage.setItem('write-pass', input.value.trim());
         render();
       }
     };
@@ -332,7 +332,7 @@ function initWrite() {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
-              password: sessionStorage.getItem('write-pass'),
+              password: localStorage.getItem('write-pass'),
               filename: file.name,
               data: base64,
             }),
@@ -386,7 +386,7 @@ function initWrite() {
       try {
         const endpoint = isEditing ? '/api/edit' : '/api/publish';
         const payload = {
-          password: sessionStorage.getItem('write-pass'),
+          password: localStorage.getItem('write-pass'),
           title: currentType === 'thought' ? '' : titleVal,
           body: bodyVal,
           type: currentType,
@@ -403,7 +403,7 @@ function initWrite() {
 
         if (!res.ok) {
           if (res.status === 401) {
-            sessionStorage.removeItem('write-pass');
+            localStorage.removeItem('write-pass');
             status.textContent = 'Wrong password.';
             setTimeout(() => render(), 1500);
             return;
@@ -479,7 +479,7 @@ function render() {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
-            password: sessionStorage.getItem('write-pass'),
+            password: localStorage.getItem('write-pass'),
             filename,
             title,
           }),
