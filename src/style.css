@@ -1,0 +1,351 @@
+/* ── Reset ── */
+*, *::before, *::after {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+/* ── Variables ── */
+:root {
+  --color-bg: #fefdfb;
+  --color-text: #1a1a1a;
+  --color-text-muted: #6b6b6b;
+  --color-link: #1a5f7a;
+  --color-link-hover: #0d3b4d;
+  --color-border: #e0ddd8;
+  --color-surface: #f5f3ef;
+  --font-serif: 'IBM Plex Serif', Georgia, serif;
+  --font-sans: 'IBM Plex Sans', -apple-system, sans-serif;
+  --font-mono: 'IBM Plex Mono', monospace;
+  --max-width: 640px;
+  --spacing-unit: 1rem;
+}
+
+/* ── Base ── */
+html {
+  font-size: 18px;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  font-family: var(--font-serif);
+  color: var(--color-text);
+  background: var(--color-bg);
+  line-height: 1.7;
+}
+
+/* ── Layout ── */
+.site {
+  max-width: var(--max-width);
+  margin: 0 auto;
+  padding: 3rem 1.5rem 6rem;
+}
+
+/* ── Header ── */
+.site-header {
+  margin-bottom: 4rem;
+}
+
+.site-header h1 {
+  font-family: var(--font-sans);
+  font-size: 1.1rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}
+
+.site-header h1 a {
+  color: var(--color-text);
+  text-decoration: none;
+}
+
+.site-header h1 a:hover {
+  color: var(--color-link);
+}
+
+.site-nav {
+  margin-top: 0.5rem;
+  display: flex;
+  gap: 1.5rem;
+}
+
+.site-nav a {
+  font-family: var(--font-sans);
+  font-size: 0.82rem;
+  color: var(--color-text-muted);
+  text-decoration: none;
+  letter-spacing: 0.01em;
+}
+
+.site-nav a:hover {
+  color: var(--color-text);
+}
+
+.site-nav a.active {
+  color: var(--color-text);
+  font-weight: 500;
+}
+
+/* ── Typography ── */
+h2 {
+  font-family: var(--font-sans);
+  font-size: 0.78rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--color-text-muted);
+  margin-bottom: 1.2rem;
+}
+
+h3 {
+  font-family: var(--font-serif);
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin-bottom: 0.3rem;
+}
+
+p {
+  margin-bottom: 1rem;
+}
+
+a {
+  color: var(--color-link);
+  text-decoration-thickness: 1px;
+  text-underline-offset: 2px;
+}
+
+a:hover {
+  color: var(--color-link-hover);
+}
+
+/* ── Sections ── */
+.section {
+  margin-bottom: 3.5rem;
+}
+
+/* ── Intro ── */
+.intro {
+  font-size: 1.15rem;
+  line-height: 1.75;
+  margin-bottom: 3.5rem;
+}
+
+.intro p {
+  margin-bottom: 0.8rem;
+}
+
+/* ── Post list ── */
+.post-list {
+  list-style: none;
+}
+
+.post-list li {
+  margin-bottom: 1rem;
+  display: flex;
+  align-items: baseline;
+  gap: 1rem;
+}
+
+.post-list .post-date {
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  color: var(--color-text-muted);
+  flex-shrink: 0;
+  min-width: 5.5rem;
+}
+
+.post-list .post-title {
+  font-family: var(--font-serif);
+  font-size: 1rem;
+}
+
+.post-list .post-title a {
+  color: var(--color-text);
+  text-decoration: none;
+}
+
+.post-list .post-title a:hover {
+  color: var(--color-link);
+  text-decoration: underline;
+}
+
+/* ── Social links ── */
+.social-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.6rem 2rem;
+}
+
+.social-grid a {
+  font-family: var(--font-sans);
+  font-size: 0.92rem;
+  color: var(--color-text);
+  text-decoration: none;
+  padding: 0.4rem 0;
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.social-grid a:hover {
+  color: var(--color-link);
+}
+
+.social-grid .platform {
+  font-weight: 500;
+}
+
+.social-grid .handle {
+  color: var(--color-text-muted);
+  font-size: 0.82rem;
+}
+
+/* ── Blog post (single) ── */
+.post-header {
+  margin-bottom: 2.5rem;
+}
+
+.post-header h1 {
+  font-family: var(--font-serif);
+  font-size: 1.65rem;
+  font-weight: 600;
+  line-height: 1.35;
+  margin-bottom: 0.5rem;
+}
+
+.post-meta {
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  color: var(--color-text-muted);
+}
+
+.post-body {
+  line-height: 1.8;
+}
+
+.post-body h2 {
+  font-family: var(--font-serif);
+  font-size: 1.2rem;
+  font-weight: 600;
+  text-transform: none;
+  letter-spacing: 0;
+  color: var(--color-text);
+  margin-top: 2.5rem;
+  margin-bottom: 0.8rem;
+}
+
+.post-body h3 {
+  font-size: 1rem;
+  margin-top: 2rem;
+}
+
+.post-body blockquote {
+  border-left: 2px solid var(--color-border);
+  padding-left: 1.2rem;
+  margin: 1.5rem 0;
+  color: var(--color-text-muted);
+  font-style: italic;
+}
+
+.post-body code {
+  font-family: var(--font-mono);
+  font-size: 0.85em;
+  background: var(--color-surface);
+  padding: 0.15em 0.4em;
+  border-radius: 3px;
+}
+
+.post-body pre {
+  background: var(--color-surface);
+  padding: 1.2rem;
+  border-radius: 4px;
+  overflow-x: auto;
+  margin: 1.5rem 0;
+}
+
+.post-body pre code {
+  background: none;
+  padding: 0;
+}
+
+.post-body ul, .post-body ol {
+  margin: 1rem 0;
+  padding-left: 1.5rem;
+}
+
+.post-body li {
+  margin-bottom: 0.4rem;
+}
+
+.post-body img {
+  max-width: 100%;
+  border-radius: 4px;
+  margin: 1.5rem 0;
+}
+
+.post-body hr {
+  border: none;
+  border-top: 1px solid var(--color-border);
+  margin: 2.5rem 0;
+}
+
+/* ── Now page ── */
+.now-content {
+  line-height: 1.8;
+}
+
+.now-content p {
+  margin-bottom: 1.2rem;
+}
+
+/* ── Back link ── */
+.back-link {
+  display: inline-block;
+  margin-top: 3rem;
+  font-family: var(--font-sans);
+  font-size: 0.85rem;
+  color: var(--color-text-muted);
+  text-decoration: none;
+}
+
+.back-link:hover {
+  color: var(--color-text);
+}
+
+.back-link::before {
+  content: '← ';
+}
+
+/* ── Footer ── */
+.site-footer {
+  margin-top: 5rem;
+  padding-top: 2rem;
+  border-top: 1px solid var(--color-border);
+  font-family: var(--font-sans);
+  font-size: 0.78rem;
+  color: var(--color-text-muted);
+}
+
+/* ── Responsive ── */
+@media (max-width: 600px) {
+  html {
+    font-size: 16px;
+  }
+
+  .site {
+    padding: 2rem 1.2rem 4rem;
+  }
+
+  .site-header {
+    margin-bottom: 3rem;
+  }
+
+  .social-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .post-list li {
+    flex-direction: column;
+    gap: 0.15rem;
+  }
+}
