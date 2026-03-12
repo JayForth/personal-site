@@ -221,7 +221,13 @@ function renderWrite() {
       <textarea id="write-body" class="write-body" placeholder="Write something..." autofocus></textarea>
 
       <div class="write-footer">
-        <span id="write-status" class="write-status"></span>
+        <div class="write-footer-left">
+          <label class="write-upload-label" title="Add image">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+            <input type="file" id="write-image" accept="image/*" hidden>
+          </label>
+          <span id="write-status" class="write-status"></span>
+        </div>
         <button id="write-publish" class="write-btn write-publish-btn">Publish</button>
       </div>
     </main>
@@ -277,6 +283,58 @@ function initWrite() {
       if (currentType === 'thought') body.focus();
     });
   });
+
+  // Image upload
+  const imageInput = document.getElementById('write-image');
+  if (imageInput) {
+    imageInput.addEventListener('change', async (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
+
+      if (file.size > 5 * 1024 * 1024) {
+        status.textContent = 'Image too large (max 5MB).';
+        return;
+      }
+
+      status.textContent = 'Uploading image...';
+
+      const reader = new FileReader();
+      reader.onload = async () => {
+        const base64 = reader.result.split(',')[1];
+        try {
+          const res = await fetch('/api/upload', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              password: sessionStorage.getItem('write-pass'),
+              filename: file.name,
+              data: base64,
+            }),
+          });
+
+          const data = await res.json();
+          if (!res.ok) {
+            status.textContent = data.error || 'Upload failed.';
+            return;
+          }
+
+          // Insert markdown image at cursor
+          const pos = body.selectionStart;
+          const before = body.value.slice(0, pos);
+          const after = body.value.slice(pos);
+          body.value = `${before}![](${data.url})${after}`;
+          body.selectionStart = body.selectionEnd = pos + `![](${data.url})`.length;
+          body.focus();
+          body.dispatchEvent(new Event('input'));
+          status.textContent = 'Image added.';
+        } catch (err) {
+          status.textContent = 'Upload failed. Try again.';
+        }
+      };
+      reader.readAsDataURL(file);
+      imageInput.value = '';
+    });
+  }
 
   // Publish
   if (publishBtn) {
