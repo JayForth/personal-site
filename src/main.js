@@ -16,7 +16,12 @@ const socials = [
 
 // ── Router ──
 function getRoute() {
-  return window.location.hash.slice(1) || '/';
+  return window.location.pathname;
+}
+
+function navigate(path) {
+  history.pushState(null, '', path);
+  render();
 }
 
 // ── Helpers ──
@@ -28,12 +33,12 @@ function formatDate(dateStr) {
 function renderHeader(activePage) {
   return `
     <header class="site-header">
-      <h1><a href="#/">Jacob Forth</a></h1>
+      <h1><a href="/" data-link>Jacob Forth</a></h1>
       <nav class="site-nav">
-        <a href="#/" class="${activePage === 'home' ? 'active' : ''}">Blog</a>
-        <a href="#/about" class="${activePage === 'about' ? 'active' : ''}">About</a>
-        <a href="#/now" class="${activePage === 'now' ? 'active' : ''}">Now</a>
-        <a href="#/connect" class="${activePage === 'connect' ? 'active' : ''}">Connect</a>
+        <a href="/" data-link class="${activePage === 'home' ? 'active' : ''}">Blog</a>
+        <a href="/about" data-link class="${activePage === 'about' ? 'active' : ''}">About</a>
+        <a href="/now" data-link class="${activePage === 'now' ? 'active' : ''}">Now</a>
+        <a href="/connect" data-link class="${activePage === 'connect' ? 'active' : ''}">Connect</a>
       </nav>
     </header>
   `;
@@ -65,7 +70,7 @@ function renderHome() {
           ${writing.map(p => `
             <li>
               <span class="post-date">${formatDate(p.date)}</span>
-              <span class="post-title"><a href="#/post/${p.slug}">${p.title}</a></span>
+              <span class="post-title"><a href="/post/${p.slug}" data-link>${p.title}</a></span>
             </li>
           `).join('')}
         </ul>
@@ -119,10 +124,10 @@ function renderPost(slug) {
         </div>
       </article>
       <div class="post-actions">
-        <a href="#/" class="back-link">All posts</a>
+        <a href="/" data-link class="back-link">All posts</a>
         ${isAuthed() ? `
           <span class="post-admin">
-            <a href="#/edit/${post.slug}" class="admin-link">Edit</a>
+            <a href="/edit/${post.slug}" data-link class="admin-link">Edit</a>
             <a href="#" class="admin-link admin-link-delete" data-slug="${post.slug}" data-filename="${post.filename}" data-title="${post.title}">Delete</a>
           </span>
         ` : ''}
@@ -141,11 +146,11 @@ function renderAbout() {
           <p>I'm Jacob Forth.</p>
           <p>I build things on the internet. I write about what I'm learning, thinking, and making.</p>
           <p>This site is the home base. Everything I publish starts here, then gets syndicated to
-          <a href="#/connect">every platform</a> where people actually hang out. The POSSE approach —
+          <a href="/connect" data-link>every platform</a> where people actually hang out. The POSSE approach —
           Publish on your Own Site, Syndicate Elsewhere.</p>
           <p>No analytics. No tracking. No algorithmic feed. Just ideas, written down.</p>
           <hr>
-          <p>If something here is useful to you, that's the best outcome I could ask for. If you want to get in touch, pick whichever platform you prefer from the <a href="#/connect">connect page</a>.</p>
+          <p>If something here is useful to you, that's the best outcome I could ask for. If you want to get in touch, pick whichever platform you prefer from the <a href="/connect" data-link>connect page</a>.</p>
         </div>
       </div>
     </main>
@@ -281,7 +286,7 @@ function initWrite() {
   const status = document.getElementById('write-status');
   const typeBtns = document.querySelectorAll('.write-type-btn');
 
-  let currentType = 'post';
+  let currentType = document.querySelector('.write-type-btn.active')?.dataset.type || 'post';
 
   // Auto-grow textarea
   if (body) {
@@ -289,6 +294,8 @@ function initWrite() {
       body.style.height = 'auto';
       body.style.height = body.scrollHeight + 'px';
     });
+    // Trigger auto-grow on load if editing
+    body.dispatchEvent(new Event('input'));
   }
 
   // Type toggle
@@ -407,7 +414,7 @@ function initWrite() {
 
         if (isEditing) {
           status.textContent = 'Saved! Site rebuilding...';
-          setTimeout(() => { window.location.hash = '#/'; }, 2000);
+          setTimeout(() => navigate('/'), 2000);
         } else {
           status.textContent = 'Published! Site rebuilding...';
           body.value = '';
@@ -430,7 +437,7 @@ function render404() {
     ${renderHeader('')}
     <main>
       <div class="intro"><p>Page not found.</p></div>
-      <a href="#/" class="back-link">Home</a>
+      <a href="/" data-link class="back-link">Home</a>
     </main>
     ${renderFooter()}
   `;
@@ -485,7 +492,7 @@ function render() {
         }
 
         link.textContent = 'Deleted!';
-        setTimeout(() => { window.location.hash = '#/'; }, 1000);
+        setTimeout(() => navigate('/'), 1000);
       } catch (err) {
         alert('Network error.');
         link.textContent = 'Delete';
@@ -494,5 +501,16 @@ function render() {
   });
 }
 
-window.addEventListener('hashchange', render);
+// Intercept internal link clicks
+document.addEventListener('click', (e) => {
+  const link = e.target.closest('a[data-link]');
+  if (link) {
+    e.preventDefault();
+    navigate(link.getAttribute('href'));
+  }
+});
+
+// Handle browser back/forward
+window.addEventListener('popstate', render);
+
 render();

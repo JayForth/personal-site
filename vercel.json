@@ -1,0 +1,8 @@
+{
+  "rewrites": [
+    { "source": "/api/(.*)", "destination": "/api/$1" },
+    { "source": "/feed.xml", "destination": "/feed.xml" },
+    { "source": "/images/(.*)", "destination": "/images/$1" },
+    { "source": "/(.*)", "destination": "/index.html" }
+  ]
+}
