@@ -27,6 +27,7 @@ function parsePosts() {
         slug,
         title: frontmatter.title || slug,
         date: frontmatter.date || '2026-01-01',
+        type: frontmatter.type || 'post',
         body: match[2].trim()
       };
     })

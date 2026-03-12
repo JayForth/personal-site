@@ -169,6 +169,44 @@ a:hover {
   text-decoration: underline;
 }
 
+/* ── Thoughts ── */
+.thoughts-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.thought {
+  padding-bottom: 1.5rem;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.thought:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+.thought .thought-body {
+  font-size: 0.95rem;
+  line-height: 1.7;
+}
+
+.thought .thought-body p {
+  margin-bottom: 0.4rem;
+}
+
+.thought .thought-body p:last-child {
+  margin-bottom: 0;
+}
+
+.thought-date {
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  color: var(--color-text-muted);
+  display: block;
+  margin-top: 0.5rem;
+}
+
 /* ── Social links ── */
 .social-grid {
   display: grid;

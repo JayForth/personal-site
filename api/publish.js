@@ -31,7 +31,7 @@ export default async function handler(req, res) {
   const filename = `posts/${date}_${slug}.md`;
 
   // Build markdown file
-  const content = `---\ntitle: ${postTitle}\ndate: ${date}\n---\n\n${body.trim()}\n`;
+  const content = `---\ntitle: ${postTitle}\ndate: ${date}\ntype: ${type}\n---\n\n${body.trim()}\n`;
 
   // Commit to GitHub
   const repo = process.env.GITHUB_REPO;

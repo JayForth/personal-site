@@ -50,6 +50,9 @@ function renderFooter() {
 // ── Pages ──
 function renderHome() {
   const sorted = [...posts].sort((a, b) => new Date(b.date) - new Date(a.date));
+  const writing = sorted.filter(p => p.type !== 'thought');
+  const thoughts = sorted.filter(p => p.type === 'thought').slice(0, 6);
+
   return `
     ${renderHeader('home')}
     <main>
@@ -59,7 +62,7 @@ function renderHome() {
       <section class="section">
         <h2>Writing</h2>
         <ul class="post-list">
-          ${sorted.map(p => `
+          ${writing.map(p => `
             <li>
               <span class="post-date">${formatDate(p.date)}</span>
               <span class="post-title"><a href="#/post/${p.slug}">${p.title}</a></span>
@@ -67,6 +70,19 @@ function renderHome() {
           `).join('')}
         </ul>
       </section>
+      ${thoughts.length ? `
+      <section class="section">
+        <h2>Thoughts</h2>
+        <div class="thoughts-list">
+          ${thoughts.map(t => `
+            <div class="thought">
+              <div class="thought-body">${marked.parse(t.body.trim())}</div>
+              <span class="thought-date">${formatDate(t.date)}</span>
+            </div>
+          `).join('')}
+        </div>
+      </section>
+      ` : ''}
       <section class="section">
         <h2>Elsewhere</h2>
         <div class="social-grid">
