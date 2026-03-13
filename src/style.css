@@ -186,6 +186,24 @@ a:hover {
   flex-shrink: 0;
 }
 
+.draft-tag {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+.draft-badge {
+  display: inline-block;
+  font-family: var(--font-sans);
+  font-size: 0.72rem;
+  font-weight: 600;
+  background: #fef3c7;
+  color: #92400e;
+  padding: 0.15em 0.6em;
+  border-radius: 3px;
+  margin-left: 0.5rem;
+  vertical-align: middle;
+}
+
 /* ── Thoughts ── */
 .thoughts-list {
   display: flex;
@@ -597,6 +615,17 @@ a:hover {
 .write-btn:disabled {
   opacity: 0.4;
   cursor: not-allowed;
+}
+
+.write-draft-btn {
+  background: none;
+  color: var(--color-text-muted);
+  border-color: var(--color-border);
+}
+
+.write-draft-btn:hover {
+  color: var(--color-text);
+  border-color: var(--color-text-muted);
 }
 
 .write-publish-btn {

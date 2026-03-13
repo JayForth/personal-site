@@ -3,7 +3,7 @@ export default async function handler(req, res) {
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
-  const { password, filename, title, body, type } = req.body;
+  const { password, filename, title, body, type, draft } = req.body;
 
   if (!password || password !== process.env.PUBLISH_PASSWORD) {
     return res.status(401).json({ error: 'Wrong password' });
@@ -37,7 +37,8 @@ export default async function handler(req, res) {
   const dateMatch = filename.match(/(\d{4}-\d{2}-\d{2})_/);
   const date = dateMatch ? dateMatch[1] : new Date().toISOString().slice(0, 10);
 
-  const content = `---\ntitle: ${title}\ndate: ${date}\ntype: ${type || 'post'}\n---\n\n${body.trim()}\n`;
+  const draftLine = draft ? `\ndraft: true` : '';
+  const content = `---\ntitle: ${title}\ndate: ${date}\ntype: ${type || 'post'}${draftLine}\n---\n\n${body.trim()}\n`;
 
   const putRes = await fetch(`https://api.github.com/repos/${repo}/contents/${filename}`, {
     method: 'PUT',

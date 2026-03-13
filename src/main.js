@@ -54,7 +54,7 @@ function renderFooter() {
 
 // ── Pages ──
 function renderHome() {
-  const sorted = [...posts].sort((a, b) => new Date(b.date) - new Date(a.date));
+  const sorted = [...posts].filter(p => !p.draft).sort((a, b) => new Date(b.date) - new Date(a.date));
   const writing = sorted.filter(p => p.type !== 'thought');
   const thoughts = sorted.filter(p => p.type === 'thought').slice(0, 6);
 
@@ -110,7 +110,7 @@ function isAuthed() {
 
 function renderPost(slug) {
   const post = posts.find(p => p.slug === slug);
-  if (!post) return render404();
+  if (!post || (post.draft && !isAuthed())) return render404();
   return `
     ${renderHeader('blog')}
     <main>
@@ -118,6 +118,7 @@ function renderPost(slug) {
         <div class="post-header">
           <h1 class="p-name">${post.title}</h1>
           <time class="post-meta dt-published" datetime="${post.date}">${formatDate(post.date)}</time>
+          ${post.draft ? '<span class="draft-badge">Draft</span>' : ''}
         </div>
         <div class="post-body e-content">
           ${marked.parse(post.body.trim())}
@@ -291,7 +292,8 @@ function renderWrite(editSlug) {
           </label>
           <span id="write-status" class="write-status"></span>
         </div>
-        <button id="write-publish" class="write-btn write-publish-btn">${editPost ? 'Save' : 'Publish'}</button>
+        <button id="write-draft" class="write-btn write-draft-btn">${editPost?.draft ? 'Save Draft' : 'Save Draft'}</button>
+        <button id="write-publish" class="write-btn write-publish-btn">${editPost ? (editPost.draft ? 'Publish' : 'Save') : 'Publish'}</button>
       </div>
 
       ${!editPost ? `
@@ -304,6 +306,7 @@ function renderWrite(editSlug) {
               <span class="post-title">
                 <a href="/post/${p.slug}" data-link>${p.title}</a>
                 ${p.type === 'thought' ? '<span class="post-type-tag">thought</span>' : ''}
+                ${p.draft ? '<span class="post-type-tag draft-tag">draft</span>' : ''}
               </span>
               <a href="/edit/${p.slug}" data-link class="admin-link post-list-edit">Edit</a>
             </li>
@@ -425,73 +428,88 @@ function initWrite() {
     });
   }
 
-  // Publish / Save
+  // Publish / Save / Draft
   const editFilename = document.getElementById('write-edit-filename')?.value;
   const isEditing = !!editFilename;
+  const draftBtn = document.getElementById('write-draft');
 
-  if (publishBtn) {
-    publishBtn.addEventListener('click', async () => {
-      const bodyVal = body.value.trim();
-      const titleVal = title?.value.trim() || '';
+  async function submitPost(isDraft) {
+    const bodyVal = body.value.trim();
+    const titleVal = title?.value.trim() || '';
 
-      if (!bodyVal) {
-        status.textContent = 'Write something first.';
-        return;
-      }
-      if (currentType === 'post' && !titleVal) {
-        status.textContent = 'Add a title.';
-        return;
-      }
+    if (!bodyVal) {
+      status.textContent = 'Write something first.';
+      return;
+    }
+    if (currentType === 'post' && !titleVal && !isDraft) {
+      status.textContent = 'Add a title.';
+      return;
+    }
 
-      publishBtn.disabled = true;
-      status.textContent = isEditing ? 'Saving...' : 'Publishing...';
+    publishBtn.disabled = true;
+    draftBtn.disabled = true;
+    status.textContent = isDraft ? 'Saving draft...' : (isEditing ? 'Saving...' : 'Publishing...');
 
-      try {
-        const endpoint = isEditing ? '/api/edit' : '/api/publish';
-        const payload = {
-          password: localStorage.getItem('write-pass'),
-          title: currentType === 'thought' ? '' : titleVal,
-          body: bodyVal,
-          type: currentType,
-        };
-        if (isEditing) payload.filename = editFilename;
+    try {
+      const endpoint = isEditing ? '/api/edit' : '/api/publish';
+      const payload = {
+        password: localStorage.getItem('write-pass'),
+        title: currentType === 'thought' ? '' : titleVal,
+        body: bodyVal,
+        type: currentType,
+        draft: isDraft,
+      };
+      if (isEditing) payload.filename = editFilename;
 
-        const res = await fetch(endpoint, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(payload),
-        });
+      const res = await fetch(endpoint, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
 
-        const data = await res.json();
+      const data = await res.json();
 
-        if (!res.ok) {
-          if (res.status === 401) {
-            localStorage.removeItem('write-pass');
-            status.textContent = 'Wrong password.';
-            setTimeout(() => render(), 1500);
-            return;
-          }
-          status.textContent = data.error || 'Something went wrong.';
-          publishBtn.disabled = false;
+      if (!res.ok) {
+        if (res.status === 401) {
+          localStorage.removeItem('write-pass');
+          status.textContent = 'Wrong password.';
+          setTimeout(() => render(), 1500);
           return;
         }
-
-        if (isEditing) {
-          status.textContent = 'Saved! Site rebuilding...';
-          setTimeout(() => navigate('/write'), 2000);
-        } else {
-          const newSlug = data.slug;
-          body.value = '';
-          if (title) title.value = '';
-          publishBtn.disabled = false;
-          status.innerHTML = `Published! <a href="/post/${newSlug}" data-link class="write-preview-link">View post &rarr;</a>`;
-        }
-      } catch (err) {
-        status.textContent = 'Network error. Try again.';
+        status.textContent = data.error || 'Something went wrong.';
         publishBtn.disabled = false;
+        draftBtn.disabled = false;
+        return;
       }
-    });
+
+      if (isDraft) {
+        const newSlug = data.slug || '';
+        status.innerHTML = isEditing
+          ? 'Draft saved! Site rebuilding...'
+          : `Draft saved! <a href="/post/${newSlug}" data-link class="write-preview-link">Preview &rarr;</a>`;
+        if (!isEditing) { body.value = ''; if (title) title.value = ''; }
+        publishBtn.disabled = false;
+        draftBtn.disabled = false;
+      } else if (isEditing) {
+        status.textContent = 'Saved! Site rebuilding...';
+        setTimeout(() => navigate('/write'), 2000);
+      } else {
+        const newSlug = data.slug;
+        body.value = '';
+        if (title) title.value = '';
+        publishBtn.disabled = false;
+        draftBtn.disabled = false;
+        status.innerHTML = `Published! <a href="/post/${newSlug}" data-link class="write-preview-link">View post &rarr;</a>`;
+      }
+    } catch (err) {
+      status.textContent = 'Network error. Try again.';
+      publishBtn.disabled = false;
+      draftBtn.disabled = false;
+    }
   }
+
+  if (publishBtn) publishBtn.addEventListener('click', () => submitPost(false));
+  if (draftBtn) draftBtn.addEventListener('click', () => submitPost(true));
 }
 
 function render404() {

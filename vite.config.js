@@ -29,6 +29,7 @@ function parsePosts() {
         title: frontmatter.title || slug,
         date: frontmatter.date || '2026-01-01',
         type: frontmatter.type || 'post',
+        draft: frontmatter.draft === 'true',
         body: match[2].trim()
       };
     })
@@ -64,7 +65,7 @@ function feedPlugin() {
   return {
     name: 'generate-atom-feed',
     writeBundle() {
-      const posts = parsePosts();
+      const posts = parsePosts().filter(p => !p.draft);
       const siteUrl = 'https://helloiamjacob.com';
       const sorted = [...posts].sort((a, b) => new Date(b.date) - new Date(a.date));
       const updated = sorted[0]?.date || new Date().toISOString().slice(0, 10);

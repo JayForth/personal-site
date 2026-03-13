@@ -3,7 +3,7 @@ export default async function handler(req, res) {
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
-  const { password, title, body, type } = req.body;
+  const { password, title, body, type, draft } = req.body;
 
   if (!password || password !== process.env.PUBLISH_PASSWORD) {
     return res.status(401).json({ error: 'Wrong password' });
@@ -31,7 +31,8 @@ export default async function handler(req, res) {
   const filename = `posts/${date}_${slug}.md`;
 
   // Build markdown file
-  const content = `---\ntitle: ${postTitle}\ndate: ${date}\ntype: ${type}\n---\n\n${body.trim()}\n`;
+  const draftLine = draft ? `\ndraft: true` : '';
+  const content = `---\ntitle: ${postTitle}\ndate: ${date}\ntype: ${type}${draftLine}\n---\n\n${body.trim()}\n`;
 
   // Commit to GitHub
   const repo = process.env.GITHUB_REPO;
@@ -49,7 +50,7 @@ export default async function handler(req, res) {
       'User-Agent': 'personal-site-publisher',
     },
     body: JSON.stringify({
-      message: `New ${type}: ${postTitle}`,
+      message: `${draft ? 'Draft' : 'New'} ${type}: ${postTitle}`,
       content: Buffer.from(content).toString('base64'),
     }),
   });
