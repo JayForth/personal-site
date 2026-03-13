@@ -540,6 +540,11 @@ a:hover {
   color: var(--color-text-muted);
 }
 
+.write-preview-link {
+  font-weight: 500;
+  margin-left: 0.3rem;
+}
+
 .write-btn {
   font-family: var(--font-sans);
   font-size: 0.85rem;

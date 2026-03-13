@@ -450,10 +450,10 @@ function initWrite() {
           setTimeout(() => navigate('/writing'), 2000);
         } else {
           const newSlug = data.slug;
-          status.textContent = 'Published! Redirecting...';
           body.value = '';
           if (title) title.value = '';
-          setTimeout(() => navigate(`/post/${newSlug}`), 2000);
+          publishBtn.disabled = false;
+          status.innerHTML = `Published! <a href="/post/${newSlug}" data-link class="write-preview-link">View post &rarr;</a>`;
         }
       } catch (err) {
         status.textContent = 'Network error. Try again.';
