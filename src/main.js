@@ -182,33 +182,6 @@ function renderNow() {
   `;
 }
 
-function renderWriting() {
-  const sorted = [...posts].sort((a, b) => new Date(b.date) - new Date(a.date));
-  const authed = isAuthed();
-
-  return `
-    ${renderHeader('writing')}
-    <main>
-      <section class="section">
-        <h2>All Writing</h2>
-        <ul class="post-list">
-          ${sorted.map(p => `
-            <li class="h-entry">
-              <time class="post-date dt-published" datetime="${p.date}">${formatDate(p.date)}</time>
-              <span class="post-title">
-                <a class="p-name u-url" href="/post/${p.slug}" data-link>${p.title}</a>
-                ${p.type === 'thought' ? '<span class="post-type-tag">thought</span>' : ''}
-              </span>
-              ${authed ? `<a href="/edit/${p.slug}" data-link class="admin-link post-list-edit">Edit</a>` : ''}
-            </li>
-          `).join('')}
-        </ul>
-      </section>
-    </main>
-    ${renderFooter()}
-  `;
-}
-
 function renderConnect() {
   return `
     ${renderHeader('connect')}
@@ -281,6 +254,24 @@ function renderWrite(editSlug) {
         </div>
         <button id="write-publish" class="write-btn write-publish-btn">${editPost ? 'Save' : 'Publish'}</button>
       </div>
+
+      ${!editPost ? `
+      <div class="write-posts-list">
+        <h2>Your Posts</h2>
+        <ul class="post-list">
+          ${[...posts].sort((a, b) => new Date(b.date) - new Date(a.date)).map(p => `
+            <li>
+              <time class="post-date" datetime="${p.date}">${formatDate(p.date)}</time>
+              <span class="post-title">
+                <a href="/post/${p.slug}" data-link>${p.title}</a>
+                ${p.type === 'thought' ? '<span class="post-type-tag">thought</span>' : ''}
+              </span>
+              <a href="/edit/${p.slug}" data-link class="admin-link post-list-edit">Edit</a>
+            </li>
+          `).join('')}
+        </ul>
+      </div>
+      ` : ''}
     </main>
   `;
 }
@@ -447,7 +438,7 @@ function initWrite() {
 
         if (isEditing) {
           status.textContent = 'Saved! Site rebuilding...';
-          setTimeout(() => navigate('/writing'), 2000);
+          setTimeout(() => navigate('/write'), 2000);
         } else {
           const newSlug = data.slug;
           body.value = '';
@@ -484,7 +475,6 @@ function render() {
   else if (route === '/about') html = renderAbout();
   else if (route === '/now') html = renderNow();
   else if (route === '/connect') html = renderConnect();
-  else if (route === '/writing') html = renderWriting();
   else if (route === '/write') html = renderWrite();
   else if (route.startsWith('/edit/')) html = renderWrite(route.replace('/edit/', ''));
   else if (route.startsWith('/post/')) html = renderPost(route.replace('/post/', ''));
