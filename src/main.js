@@ -259,7 +259,7 @@ function renderWrite(editSlug) {
       <div class="write-posts-list">
         <h2>Your Posts</h2>
         <ul class="post-list">
-          ${[...posts].sort((a, b) => new Date(b.date) - new Date(a.date)).map(p => `
+          ${[...posts].sort((a, b) => new Date(b.date) - new Date(a.date)).slice(0, 5).map(p => `
             <li>
               <time class="post-date" datetime="${p.date}">${formatDate(p.date)}</time>
               <span class="post-title">
