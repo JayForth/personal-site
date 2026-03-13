@@ -182,6 +182,33 @@ function renderNow() {
   `;
 }
 
+function renderWriting() {
+  const sorted = [...posts].sort((a, b) => new Date(b.date) - new Date(a.date));
+  const authed = isAuthed();
+
+  return `
+    ${renderHeader('writing')}
+    <main>
+      <section class="section">
+        <h2>All Writing</h2>
+        <ul class="post-list">
+          ${sorted.map(p => `
+            <li class="h-entry">
+              <time class="post-date dt-published" datetime="${p.date}">${formatDate(p.date)}</time>
+              <span class="post-title">
+                <a class="p-name u-url" href="/post/${p.slug}" data-link>${p.title}</a>
+                ${p.type === 'thought' ? '<span class="post-type-tag">thought</span>' : ''}
+              </span>
+              ${authed ? `<a href="/edit/${p.slug}" data-link class="admin-link post-list-edit">Edit</a>` : ''}
+            </li>
+          `).join('')}
+        </ul>
+      </section>
+    </main>
+    ${renderFooter()}
+  `;
+}
+
 function renderConnect() {
   return `
     ${renderHeader('connect')}
@@ -289,14 +316,19 @@ function initWrite() {
 
   let currentType = document.querySelector('.write-type-btn.active')?.dataset.type || 'post';
 
-  // Auto-grow textarea
+  // Auto-grow textarea (without scrolling viewport on mobile)
   if (body) {
     body.addEventListener('input', () => {
+      const scrollY = window.scrollY;
       body.style.height = 'auto';
       body.style.height = body.scrollHeight + 'px';
+      window.scrollTo(0, scrollY);
     });
     // Trigger auto-grow on load if editing
-    body.dispatchEvent(new Event('input'));
+    const scrollY = window.scrollY;
+    body.style.height = 'auto';
+    body.style.height = body.scrollHeight + 'px';
+    window.scrollTo(0, scrollY);
   }
 
   // Type toggle
@@ -415,15 +447,13 @@ function initWrite() {
 
         if (isEditing) {
           status.textContent = 'Saved! Site rebuilding...';
-          setTimeout(() => navigate('/'), 2000);
+          setTimeout(() => navigate('/writing'), 2000);
         } else {
-          status.textContent = 'Published! Site rebuilding...';
+          const newSlug = data.slug;
+          status.textContent = 'Published! Redirecting...';
           body.value = '';
           if (title) title.value = '';
-          setTimeout(() => {
-            status.textContent = 'Published! Write another?';
-            publishBtn.disabled = false;
-          }, 3000);
+          setTimeout(() => navigate(`/post/${newSlug}`), 2000);
         }
       } catch (err) {
         status.textContent = 'Network error. Try again.';
@@ -454,6 +484,7 @@ function render() {
   else if (route === '/about') html = renderAbout();
   else if (route === '/now') html = renderNow();
   else if (route === '/connect') html = renderConnect();
+  else if (route === '/writing') html = renderWriting();
   else if (route === '/write') html = renderWrite();
   else if (route.startsWith('/edit/')) html = renderWrite(route.replace('/edit/', ''));
   else if (route.startsWith('/post/')) html = renderPost(route.replace('/post/', ''));

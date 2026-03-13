@@ -169,6 +169,23 @@ a:hover {
   text-decoration: underline;
 }
 
+.post-type-tag {
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  color: var(--color-text-muted);
+  background: var(--color-surface);
+  padding: 0.1em 0.5em;
+  border-radius: 3px;
+  margin-left: 0.4rem;
+  vertical-align: middle;
+}
+
+.post-list-edit {
+  font-size: 0.78rem;
+  margin-left: auto;
+  flex-shrink: 0;
+}
+
 /* ── Thoughts ── */
 .thoughts-list {
   display: flex;
