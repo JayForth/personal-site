@@ -182,6 +182,45 @@ function renderNow() {
   `;
 }
 
+function renderAllPosts() {
+  const sorted = [...posts].sort((a, b) => new Date(b.date) - new Date(a.date));
+  const authed = isAuthed();
+  const params = new URLSearchParams(window.location.search);
+  const page = Math.max(1, parseInt(params.get('page')) || 1);
+  const perPage = 30;
+  const totalPages = Math.ceil(sorted.length / perPage);
+  const paginated = sorted.slice((page - 1) * perPage, page * perPage);
+
+  return `
+    ${renderHeader('')}
+    <main>
+      <section class="section">
+        <h2>All Posts (${sorted.length})</h2>
+        <ul class="post-list">
+          ${paginated.map(p => `
+            <li>
+              <time class="post-date" datetime="${p.date}">${formatDate(p.date)}</time>
+              <span class="post-title">
+                <a href="/post/${p.slug}" data-link>${p.title}</a>
+                ${p.type === 'thought' ? '<span class="post-type-tag">thought</span>' : ''}
+              </span>
+              ${authed ? `<a href="/edit/${p.slug}" data-link class="admin-link post-list-edit">Edit</a>` : ''}
+            </li>
+          `).join('')}
+        </ul>
+        ${totalPages > 1 ? `
+        <div class="pagination">
+          ${page > 1 ? `<a href="/all-posts?page=${page - 1}" data-link class="pagination-link">&larr; Newer</a>` : '<span></span>'}
+          <span class="pagination-info">Page ${page} of ${totalPages}</span>
+          ${page < totalPages ? `<a href="/all-posts?page=${page + 1}" data-link class="pagination-link">Older &rarr;</a>` : '<span></span>'}
+        </div>
+        ` : ''}
+      </section>
+    </main>
+    ${renderFooter()}
+  `;
+}
+
 function renderConnect() {
   return `
     ${renderHeader('connect')}
@@ -270,6 +309,7 @@ function renderWrite(editSlug) {
             </li>
           `).join('')}
         </ul>
+        ${posts.length > 5 ? '<a href="/all-posts" data-link class="view-all-link">All posts &rarr;</a>' : ''}
       </div>
       ` : ''}
     </main>
@@ -475,6 +515,7 @@ function render() {
   else if (route === '/about') html = renderAbout();
   else if (route === '/now') html = renderNow();
   else if (route === '/connect') html = renderConnect();
+  else if (route === '/all-posts') html = renderAllPosts();
   else if (route === '/write') html = renderWrite();
   else if (route.startsWith('/edit/')) html = renderWrite(route.replace('/edit/', ''));
   else if (route.startsWith('/post/')) html = renderPost(route.replace('/post/', ''));

@@ -551,6 +551,33 @@ a:hover {
   border-top: 1px solid var(--color-border);
 }
 
+.view-all-link {
+  display: inline-block;
+  margin-top: 1rem;
+  font-family: var(--font-sans);
+  font-size: 0.85rem;
+}
+
+.pagination {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 2rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--color-border);
+}
+
+.pagination-link {
+  font-family: var(--font-sans);
+  font-size: 0.85rem;
+}
+
+.pagination-info {
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  color: var(--color-text-muted);
+}
+
 .write-btn {
   font-family: var(--font-sans);
   font-size: 0.85rem;
