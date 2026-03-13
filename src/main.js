@@ -30,11 +30,6 @@ function formatDate(dateStr) {
   return d.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
 }
 
-function excerpt(body, maxLen = 160) {
-  const plain = body.replace(/!\[.*?\]\(.*?\)/g, '').replace(/\[([^\]]+)\]\(.*?\)/g, '$1').replace(/[#*_`~>-]/g, '').replace(/\n+/g, ' ').trim();
-  return plain.length > maxLen ? plain.slice(0, maxLen).replace(/\s+\S*$/, '') + '...' : plain;
-}
-
 function renderHeader(activePage) {
   return `
     <header class="site-header">
@@ -71,16 +66,14 @@ function renderHome() {
       </div>
       <section class="section h-feed">
         <h2>Writing</h2>
-        <div class="post-cards">
+        <ul class="post-list">
           ${writing.map(p => `
-            <a href="/post/${p.slug}" data-link class="post-card h-entry">
-              <time class="post-card-date dt-published" datetime="${p.date}">${formatDate(p.date)}</time>
-              <h3 class="post-card-title p-name">${p.title}</h3>
-              <p class="post-card-excerpt p-summary">${excerpt(p.body)}</p>
-              <span class="post-card-read">Read <span class="arrow">&rarr;</span></span>
-            </a>
+            <li class="h-entry">
+              <time class="post-date dt-published" datetime="${p.date}">${formatDate(p.date)}</time>
+              <span class="post-title"><a class="p-name u-url" href="/post/${p.slug}" data-link>${p.title}</a></span>
+            </li>
           `).join('')}
-        </div>
+        </ul>
       </section>
       ${thoughts.length ? `
       <section class="section">
