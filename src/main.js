@@ -33,7 +33,7 @@ function formatDate(dateStr) {
 function renderHeader(activePage) {
   return `
     <header class="site-header">
-      <h1><a href="/" data-link>Jacob Forth</a></h1>
+      <h1><a href="/" data-link>Jacob Welby</a></h1>
       <nav class="site-nav">
         <a href="/" data-link class="${activePage === 'home' ? 'active' : ''}">Blog</a>
         <a href="/about" data-link class="${activePage === 'about' ? 'active' : ''}">About</a>
@@ -144,7 +144,7 @@ function renderAbout() {
     <main>
       <div class="section">
         <div class="post-body">
-          <p>I'm Jacob Forth.</p>
+          <p>I'm Jacob Welby.</p>
           <p>I build things on the internet. I write about what I'm learning, thinking, and making.</p>
           <p>This site is the home base. Everything I publish starts here, then gets syndicated to
           <a href="/connect" data-link>every platform</a> where people actually hang out. The POSSE approach —

@@ -81,13 +81,13 @@ function feedPlugin() {
 
       const xml = `<?xml version="1.0" encoding="utf-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
-  <title>Jacob Forth</title>
-  <subtitle>Personal blog of Jacob Forth</subtitle>
+  <title>Jacob Welby</title>
+  <subtitle>Personal blog of Jacob Welby</subtitle>
   <link href="${siteUrl}/feed.xml" rel="self"/>
   <link href="${siteUrl}" rel="alternate"/>
   <id>${siteUrl}/</id>
   <updated>${updated}T00:00:00Z</updated>
-  <author><name>Jacob Forth</name></author>
+  <author><name>Jacob Welby</name></author>
 ${entries}
 </feed>
 `;
