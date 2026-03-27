@@ -2,18 +2,6 @@ import { marked } from 'marked';
 import { posts } from 'virtual:posts';
 import './style.css';
 
-// ── Social links ──
-const socials = [
-  { platform: 'X', handle: '@jacobforth', url: 'https://x.com/jacobforth' },
-  { platform: 'YouTube', handle: '@jacobforth', url: 'https://youtube.com/@jacobforth' },
-  { platform: 'Bluesky', handle: '@jacobforth', url: 'https://bsky.app/profile/jacobforth' },
-  { platform: 'Substack', handle: 'jacobforth', url: 'https://jacobforth.substack.com' },
-  { platform: 'Instagram', handle: '@jacobforth', url: 'https://instagram.com/jacobforth' },
-  { platform: 'TikTok', handle: '@jacobforth', url: 'https://tiktok.com/@jacobforth' },
-  { platform: 'LinkedIn', handle: 'jacobforth', url: 'https://linkedin.com/in/jacobforth' },
-  { platform: 'GitHub', handle: 'JayForth', url: 'https://github.com/JayForth' },
-];
-
 // ── Router ──
 function getRoute() {
   return window.location.pathname;
@@ -38,7 +26,6 @@ function renderHeader(activePage) {
         <a href="/" data-link class="${activePage === 'home' ? 'active' : ''}">Blog</a>
         <a href="/about" data-link class="${activePage === 'about' ? 'active' : ''}">About</a>
         <a href="/now" data-link class="${activePage === 'now' ? 'active' : ''}">Now</a>
-        <a href="/connect" data-link class="${activePage === 'connect' ? 'active' : ''}">Connect</a>
       </nav>
     </header>
   `;
@@ -47,7 +34,6 @@ function renderHeader(activePage) {
 function renderFooter() {
   return `
     <footer class="site-footer">
-      <p>This is my home on the internet. Published here first, syndicated everywhere.</p>
     </footer>
   `;
 }
@@ -55,49 +41,23 @@ function renderFooter() {
 // ── Pages ──
 function renderHome() {
   const sorted = [...posts].filter(p => !p.draft).sort((a, b) => new Date(b.date) - new Date(a.date));
-  const writing = sorted.filter(p => p.type !== 'thought');
-  const thoughts = sorted.filter(p => p.type === 'thought').slice(0, 6);
 
   return `
     ${renderHeader('home')}
     <main>
       <div class="intro h-card">
-        <p>I'm <a class="p-name u-url" href="/" data-link>Jacob</a> — <span class="p-note">I build things on the internet and write about what I learn along the way.</span></p>
+        <p>Hello I am <span class="name-hover" id="name-hover"><span class="p-name">Jacob</span><img src="/jacob.jpg" class="name-hover-img" alt="Jacob"><span class="name-hover-msg">great job!</span></span>. <span class="p-note">I build things on the internet and write about what I learn along the way. I currently co-run <a href="https://pipdecks.com" target="_blank" rel="noopener">Pip Decks</a> with my best friend.</span></p>
       </div>
       <section class="section h-feed">
         <h2>Writing</h2>
         <ul class="post-list">
-          ${writing.map(p => `
+          ${sorted.map(p => `
             <li class="h-entry">
               <time class="post-date dt-published" datetime="${p.date}">${formatDate(p.date)}</time>
               <span class="post-title"><a class="p-name u-url" href="/post/${p.slug}" data-link>${p.title}</a></span>
             </li>
           `).join('')}
         </ul>
-      </section>
-      ${thoughts.length ? `
-      <section class="section">
-        <h2>Thoughts</h2>
-        <div class="thoughts-list">
-          ${thoughts.map(t => `
-            <div class="thought h-entry">
-              <div class="thought-body e-content">${marked.parse(t.body.trim())}</div>
-              <time class="thought-date dt-published" datetime="${t.date}">${formatDate(t.date)}</time>
-            </div>
-          `).join('')}
-        </div>
-      </section>
-      ` : ''}
-      <section class="section">
-        <h2>Elsewhere</h2>
-        <div class="social-grid">
-          ${socials.map(s => `
-            <a href="${s.url}" target="_blank" rel="me noopener">
-              <span class="platform">${s.platform}</span>
-              <span class="handle">${s.handle}</span>
-            </a>
-          `).join('')}
-        </div>
       </section>
     </main>
     ${renderFooter()}
@@ -147,12 +107,10 @@ function renderAbout() {
         <div class="post-body">
           <p>I'm Jacob Welby.</p>
           <p>I build things on the internet. I write about what I'm learning, thinking, and making.</p>
-          <p>This site is the home base. Everything I publish starts here, then gets syndicated to
-          <a href="/connect" data-link>every platform</a> where people actually hang out. The POSSE approach —
-          Publish on your Own Site, Syndicate Elsewhere.</p>
+          <p>This site is the home base. Everything I publish starts here.</p>
           <p>No analytics. No tracking. No algorithmic feed. Just ideas, written down.</p>
           <hr>
-          <p>If something here is useful to you, that's the best outcome I could ask for. If you want to get in touch, pick whichever platform you prefer from the <a href="/connect" data-link>connect page</a>.</p>
+          <p>If something here is useful to you, that's the best outcome I could ask for.</p>
         </div>
       </div>
     </main>
@@ -203,7 +161,6 @@ function renderAllPosts() {
               <time class="post-date" datetime="${p.date}">${formatDate(p.date)}</time>
               <span class="post-title">
                 <a href="/post/${p.slug}" data-link>${p.title}</a>
-                ${p.type === 'thought' ? '<span class="post-type-tag">thought</span>' : ''}
               </span>
               ${authed ? `<a href="/edit/${p.slug}" data-link class="admin-link post-list-edit">Edit</a>` : ''}
             </li>
@@ -217,34 +174,6 @@ function renderAllPosts() {
         </div>
         ` : ''}
       </section>
-    </main>
-    ${renderFooter()}
-  `;
-}
-
-function renderConnect() {
-  return `
-    ${renderHeader('connect')}
-    <main>
-      <div class="section">
-        <div class="intro">
-          <p>People consume content differently. Some only watch video. Some only read newsletters. Some live on Twitter.</p>
-          <p>So I publish here first, then syndicate everywhere. Find me wherever you already hang out:</p>
-        </div>
-        <div class="social-grid">
-          ${socials.map(s => `
-            <a href="${s.url}" target="_blank" rel="me noopener">
-              <span class="platform">${s.platform}</span>
-              <span class="handle">${s.handle}</span>
-            </a>
-          `).join('')}
-        </div>
-        <div style="margin-top: 3rem;">
-          <p style="color: var(--color-text-muted); font-size: 0.9rem;">
-            Or email me at <a href="mailto:hello@jacobforth.com">hello@jacobforth.com</a>
-          </p>
-        </div>
-      </div>
     </main>
     ${renderFooter()}
   `;
@@ -266,18 +195,10 @@ function renderWrite(editSlug) {
     `;
   }
 
-  const isThought = editPost?.type === 'thought';
-  const postType = isThought ? 'thought' : 'post';
-
   return `
     <main class="write-page">
-      <div class="write-toggle">
-        <button class="write-type-btn ${postType === 'post' ? 'active' : ''}" data-type="post">Post</button>
-        <button class="write-type-btn ${postType === 'thought' ? 'active' : ''}" data-type="thought">Thought</button>
-      </div>
-
-      <div id="write-title-wrap" class="write-title-wrap" ${isThought ? 'style="display:none"' : ''}>
-        <input type="text" id="write-title" class="write-title" placeholder="Title" value="${editPost && !isThought ? editPost.title.replace(/"/g, '&quot;') : ''}">
+      <div id="write-title-wrap" class="write-title-wrap">
+        <input type="text" id="write-title" class="write-title" placeholder="Title" value="${editPost ? editPost.title.replace(/"/g, '&quot;') : ''}">
       </div>
 
       <textarea id="write-body" class="write-body" placeholder="Write something..." autofocus>${editPost ? editPost.body : ''}</textarea>
@@ -305,7 +226,6 @@ function renderWrite(editSlug) {
               <time class="post-date" datetime="${p.date}">${formatDate(p.date)}</time>
               <span class="post-title">
                 <a href="/post/${p.slug}" data-link>${p.title}</a>
-                ${p.type === 'thought' ? '<span class="post-type-tag">thought</span>' : ''}
                 ${p.draft ? '<span class="post-type-tag draft-tag">draft</span>' : ''}
               </span>
               <a href="/edit/${p.slug}" data-link class="admin-link post-list-edit">Edit</a>
@@ -346,10 +266,6 @@ function initWrite() {
   const titleWrap = document.getElementById('write-title-wrap');
   const publishBtn = document.getElementById('write-publish');
   const status = document.getElementById('write-status');
-  const typeBtns = document.querySelectorAll('.write-type-btn');
-
-  let currentType = document.querySelector('.write-type-btn.active')?.dataset.type || 'post';
-
   // Auto-grow textarea (without scrolling viewport on mobile)
   if (body) {
     body.addEventListener('input', () => {
@@ -364,17 +280,6 @@ function initWrite() {
     body.style.height = body.scrollHeight + 'px';
     window.scrollTo(0, scrollY);
   }
-
-  // Type toggle
-  typeBtns.forEach(btn => {
-    btn.addEventListener('click', () => {
-      currentType = btn.dataset.type;
-      typeBtns.forEach(b => b.classList.remove('active'));
-      btn.classList.add('active');
-      titleWrap.style.display = currentType === 'thought' ? 'none' : '';
-      if (currentType === 'thought') body.focus();
-    });
-  });
 
   // Image upload
   const imageInput = document.getElementById('write-image');
@@ -441,7 +346,7 @@ function initWrite() {
       status.textContent = 'Write something first.';
       return;
     }
-    if (currentType === 'post' && !titleVal && !isDraft) {
+    if (!titleVal && !isDraft) {
       status.textContent = 'Add a title.';
       return;
     }
@@ -454,9 +359,9 @@ function initWrite() {
       const endpoint = isEditing ? '/api/edit' : '/api/publish';
       const payload = {
         password: localStorage.getItem('write-pass'),
-        title: currentType === 'thought' ? '' : titleVal,
+        title: titleVal,
         body: bodyVal,
-        type: currentType,
+        type: 'post',
         draft: isDraft,
       };
       if (isEditing) payload.filename = editFilename;
@@ -486,20 +391,20 @@ function initWrite() {
         const newSlug = data.slug || '';
         status.innerHTML = isEditing
           ? 'Draft saved! Site rebuilding...'
-          : `Draft saved! <a href="/post/${newSlug}" data-link class="write-preview-link">Preview &rarr;</a>`;
+          : `Draft saved! <a href="/post/${newSlug}" class="write-preview-link">Preview</a> (available in ~30s)`;
         if (!isEditing) { body.value = ''; if (title) title.value = ''; }
         publishBtn.disabled = false;
         draftBtn.disabled = false;
       } else if (isEditing) {
         status.textContent = 'Saved! Site rebuilding...';
-        setTimeout(() => navigate('/write'), 2000);
+        setTimeout(() => { window.location.href = `/post/${editFilename.replace(/^posts\/\d{4}-\d{2}-\d{2}_/, '').replace(/\.md$/, '')}`; }, 30000);
       } else {
         const newSlug = data.slug;
         body.value = '';
         if (title) title.value = '';
         publishBtn.disabled = false;
         draftBtn.disabled = false;
-        status.innerHTML = `Published! <a href="/post/${newSlug}" data-link class="write-preview-link">View post &rarr;</a>`;
+        status.innerHTML = `Published! Site rebuilding — <a href="/post/${newSlug}" class="write-preview-link">View post</a> (available in ~30s)`;
       }
     } catch (err) {
       status.textContent = 'Network error. Try again.';
@@ -532,7 +437,6 @@ function render() {
   if (route === '/') html = renderHome();
   else if (route === '/about') html = renderAbout();
   else if (route === '/now') html = renderNow();
-  else if (route === '/connect') html = renderConnect();
   else if (route === '/all-posts') html = renderAllPosts();
   else if (route === '/write') html = renderWrite();
   else if (route.startsWith('/edit/')) html = renderWrite(route.replace('/edit/', ''));
@@ -541,6 +445,17 @@ function render() {
 
   app.innerHTML = `<div class="site">${html}</div>`;
   window.scrollTo(0, 0);
+
+  // Wire up name hover click easter egg
+  const nameHover = document.getElementById('name-hover');
+  if (nameHover) {
+    nameHover.addEventListener('click', () => {
+      nameHover.classList.remove('clicked');
+      void nameHover.offsetWidth;
+      nameHover.classList.add('clicked');
+      setTimeout(() => nameHover.classList.remove('clicked'), 1500);
+    });
+  }
 
   // Wire up write page after render
   if (route === '/write' || route.startsWith('/edit/')) initWrite();
