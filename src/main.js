@@ -1,6 +1,12 @@
 import { marked } from 'marked';
-import { posts } from 'virtual:posts';
 import './style.css';
+
+let posts = [];
+
+async function fetchPosts() {
+  const res = await fetch('/api/posts');
+  if (res.ok) posts = await res.json();
+}
 
 // ── Router ──
 function getRoute() {
@@ -387,24 +393,25 @@ function initWrite() {
         return;
       }
 
+      // Refetch posts so the new/edited post is immediately available
+      await fetchPosts();
+
       if (isDraft) {
         const newSlug = data.slug || '';
-        status.innerHTML = isEditing
-          ? 'Draft saved! Site rebuilding...'
-          : `Draft saved! <a href="/post/${newSlug}" class="write-preview-link">Preview</a> (available in ~30s)`;
         if (!isEditing) { body.value = ''; if (title) title.value = ''; }
         publishBtn.disabled = false;
         draftBtn.disabled = false;
+        status.innerHTML = `Draft saved! <a href="/post/${newSlug}" data-link class="write-preview-link">Preview &rarr;</a>`;
       } else if (isEditing) {
-        status.textContent = 'Saved! Site rebuilding...';
-        setTimeout(() => { window.location.href = `/post/${editFilename.replace(/^posts\/\d{4}-\d{2}-\d{2}_/, '').replace(/\.md$/, '')}`; }, 30000);
+        const editSlug = editFilename.replace(/^posts\/\d{4}-\d{2}-\d{2}_/, '').replace(/\.md$/, '');
+        navigate(`/post/${editSlug}`);
       } else {
         const newSlug = data.slug;
         body.value = '';
         if (title) title.value = '';
         publishBtn.disabled = false;
         draftBtn.disabled = false;
-        status.innerHTML = `Published! Site rebuilding — <a href="/post/${newSlug}" class="write-preview-link">View post</a> (available in ~30s)`;
+        navigate(`/post/${newSlug}`);
       }
     } catch (err) {
       status.textContent = 'Network error. Try again.';
@@ -488,7 +495,8 @@ function render() {
         }
 
         link.textContent = 'Deleted!';
-        setTimeout(() => navigate('/'), 1000);
+        await fetchPosts();
+        navigate('/');
       } catch (err) {
         alert('Network error.');
         link.textContent = 'Delete';
@@ -509,4 +517,5 @@ document.addEventListener('click', (e) => {
 // Handle browser back/forward
 window.addEventListener('popstate', render);
 
-render();
+// Load posts then render
+fetchPosts().then(render);

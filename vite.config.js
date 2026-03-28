@@ -36,30 +36,6 @@ function parsePosts() {
     .filter(Boolean);
 }
 
-// ── Virtual module: import { posts } from 'virtual:posts' ──
-function postsPlugin() {
-  const virtualId = 'virtual:posts';
-  const resolvedId = '\0' + virtualId;
-
-  return {
-    name: 'posts-plugin',
-    resolveId(id) {
-      if (id === virtualId) return resolvedId;
-    },
-    load(id) {
-      if (id === resolvedId) {
-        return `export const posts = ${JSON.stringify(parsePosts())};`;
-      }
-    },
-    handleHotUpdate({ file, server }) {
-      if (file.endsWith('.md') && file.includes('posts')) {
-        const mod = server.moduleGraph.getModuleById(resolvedId);
-        if (mod) return [mod];
-      }
-    }
-  };
-}
-
 // ── Generate Atom feed at build time ──
 function feedPlugin() {
   return {
@@ -100,5 +76,5 @@ ${entries}
 }
 
 export default defineConfig({
-  plugins: [postsPlugin(), feedPlugin()]
+  plugins: [feedPlugin()]
 });
